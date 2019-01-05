@@ -16,6 +16,7 @@ class MyToDoViewController: UITableViewController {
         return itemArray.count
     }
     
+    //MARK table view source
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MyToDoItemCell", for: indexPath)
         cell.textLabel?.text = itemArray[indexPath.row]
@@ -29,6 +30,21 @@ class MyToDoViewController: UITableViewController {
         print("did load")
     }
 
-
+    //MARK table view delegate Methods
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        //print("selected row" + itemArray[indexPath.row])
+        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark{
+            tableView.cellForRow(at: indexPath)?.accessoryType = .none
+        }
+        else {
+            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
+        }
+        
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    
 }
+    
+
 
