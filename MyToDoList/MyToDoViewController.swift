@@ -11,6 +11,8 @@ import UIKit
 class MyToDoViewController: UITableViewController {
 
     var itemArray = ["Item 1", "Item 2", "Item 3"]
+    var defaults = UserDefaults.standard
+    
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return itemArray.count
@@ -20,7 +22,7 @@ class MyToDoViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MyToDoItemCell", for: indexPath)
         cell.textLabel?.text = itemArray[indexPath.row]
-        print(itemArray[indexPath.row])
+        //print(itemArray[indexPath.row])
         return cell
     }
     
@@ -28,6 +30,9 @@ class MyToDoViewController: UITableViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         print("did load")
+        if let items = defaults.array(forKey: "MyToDoListArray") as? [String]{
+            itemArray = items
+        }
     }
 
     //MARK table view delegate Methods
@@ -51,6 +56,8 @@ class MyToDoViewController: UITableViewController {
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             //what will happen once the user clicks the Add Item button on our UIAlert
             self.itemArray.append(textField.text!)
+            self.defaults.set(self.itemArray, forKey: "MyToDoListArray") 
+            
             self.tableView.reloadData()
         }
         alert.addTextField { (alertTextField) in
