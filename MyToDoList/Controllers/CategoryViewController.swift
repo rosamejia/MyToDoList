@@ -7,16 +7,18 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class CategoryViewController: UITableViewController {
+    let realm = try! Realm()
+    
     var categoryArray = [Category]()
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        loadCategiries()
+//        loadCategiries()
     }
 
     //MARK: - Table View Datasource Methods
@@ -39,11 +41,11 @@ class CategoryViewController: UITableViewController {
         let alert = UIAlertController(title: "Add new Category?", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add Category", style: .default) { (action) in
             //what will happen once the user clicks the Add Item button on our UIAlert
-            let newCategory = Category(context: self.context)
+            let newCategory = Category()
             newCategory.name = textField.text!
             
             self.categoryArray.append(newCategory)
-            self.saveCategories()
+            self.save(category: newCategory)
             //self.defaults.set(self.itemArray, forKey: "MyToDoListArray")
             
         }
@@ -68,20 +70,22 @@ class CategoryViewController: UITableViewController {
         }
     }
     //MARK: - Data Manipulation Methods
-    func loadCategiries(){
-        let request : NSFetchRequest<Category> = Category.fetchRequest()
-        do{
-            categoryArray = try context.fetch(request)
-        } catch {
-            print("Error loading categories \(error)")
-        }
-        
-        tableView.reloadData()
-    }
+//    func loadCategiries(){
+//        let request : NSFetchRequest<Category> = Category.fetchRequest()
+//        do{
+//            categoryArray = try context.fetch(request)
+//        } catch {
+//            print("Error loading categories \(error)")
+//        }
+//
+//        tableView.reloadData()
+//    }
     
-    func saveCategories() {
+    func save(category: Category) {
         do {
-            try context.save()
+            try realm.write {
+                realm.add(category)
+            }
         } catch {
             print("Error saving category, \(error)")
         }
