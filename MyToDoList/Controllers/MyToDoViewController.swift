@@ -63,8 +63,18 @@ class MyToDoViewController: UITableViewController {
     
     //MARK table view delegate Methods
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //print("selected row" + itemArray[indexPath.row])
+        if let item = todoItems?[indexPath.row] {
+            do {
+                try realm.write {
+                    //realm.delete(item)
+                    item.done = !item.done
+                }
+            } catch {
+                print ("Error saving done status, \(error)")
+            }
+        }
         
+        tableView.reloadData()
 //       todoItems?[indexPath.row].done = !todoItems[indexPath.row].done
 //        context.delete(itemArray[indexPath.row])
 //        itemArray.remove(at: indexPath.row)
