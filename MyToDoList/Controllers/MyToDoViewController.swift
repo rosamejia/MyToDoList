@@ -9,7 +9,7 @@
 import UIKit
 import RealmSwift
 
-class MyToDoViewController: UITableViewController {
+class MyToDoViewController: SwipeTableViewController {
 
     var todoItems: Results<Item>?
     let realm = try! Realm()
@@ -24,20 +24,8 @@ class MyToDoViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
-        //removed the loadItems because above selectedCategory will loadItems if a category exist
-        //loadItems()
         
-//        let newItem = Item()
-//        newItem.title = "Item 1"
-//        itemArray.append(newItem)
-//
-//        let newItem2 = Item()
-//        newItem2.title = "Item 2"
-//        itemArray.append(newItem2)
-        
-//        if let items = defaults.array(forKey: "MyToDoListArray") as? [Item]{
-//            itemArray = items
-//        }
+        tableView.rowHeight = 80.0
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -47,16 +35,9 @@ class MyToDoViewController: UITableViewController {
     
     //MARK table view source
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "MyToDoItemCell", for: indexPath)
-        
-        if let item = todoItems?[indexPath.row]{
-        
-            cell.textLabel?.text = item.title
-            cell.accessoryType = item.done ? .checkmark : .none
-        } else {
-            cell.textLabel?.text = "No Items Found"
-        }
-        
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
+        cell.textLabel?.text = todoItems?[indexPath.row].title ?? "No Items added yet"
+        loadItems()
         return cell
     }
     
@@ -122,6 +103,18 @@ class MyToDoViewController: UITableViewController {
          tableView.reloadData()
     }
     
+    //MARK: - Delete Data from Swipe
+    override func updateModel(at indexPath: IndexPath) {
+        if let itemForDeletion = self.todoItems?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(itemForDeletion)
+                }
+            } catch {
+                print("Error deleting item, \(error)")
+            }
+        }
+    }
 }
     
 //MARK: - Search bar methods
@@ -130,12 +123,6 @@ extension MyToDoViewController: UISearchBarDelegate {
         todoItems = todoItems?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: true)
         
         tableView.reloadData()
-//        let request : NSFetchRequest<Item> = Item.fetchRequest()
-//        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-//
-//        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-//
-//        loadItems(with: request, predicate: predicate)
     }
 
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
